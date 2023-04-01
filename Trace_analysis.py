@@ -28,29 +28,30 @@ def compute_data(path):
     received_per_min = (received/(diff_time.total_seconds()/60))
     print("received : " + str(received))
     print("received_per_min : " + str(received_per_min) + "\n\n")
-    return sent_per_min, received_per_min
+    return sent_per_min/1000, received_per_min/1000
 
 audio_data = compute_data('./Diff_Wifi/Audio/audio.pcapng')
 video_data = compute_data('./Diff_Wifi/Video/video.pcapng')
 message_data = compute_data('./Diff_Wifi/Message/message.pcapng')
+screen_data = compute_data('./Diff_Wifi/Screen/screen.pcapng')
+file_data = compute_data('./Diff_Wifi/File/file.pcapng')
 
-sent_data = [audio_data[0], video_data[0], message_data[0]]
-received_data = [audio_data[1], video_data[1], message_data[1]]
+sent_data = [audio_data[0], video_data[0], screen_data[0], file_data[0], message_data[0]]
+received_data = [audio_data[1], video_data[1], screen_data[1], file_data[1], message_data[1]]
 
-fig, ax1 = plt.subplots()
-plt.title("Volume de donnée en transit")
-ax1.bar(["audio", "video", "message"], sent_data, 0.5, label='Première paire')
-ax1.set_title('Donnée envoyées (en octets/min)')
-plt.savefig("Graphes_data_sent.png")
+barwidth = 0.4
+x1 = [0, 1, 2, 3, 4]
+x2 = [x + barwidth for x in x1]
 
-fig2, ax2 = plt.subplots()
-ax2.bar(["audio", "video", "message"], received_data, 0.5, label='Première paire')
-ax2.set_title('Donnée recues (en octets/min)')
+plt.title("Volume de donnée en transit (Ko/min)")
+b1 = plt.bar(x1, sent_data, edgecolor="black", color="red", width=0.4, linewidth=1)
+b2 = plt.bar(x2, received_data, edgecolor="black", width=0.4, linewidth=1)
+plt.grid(axis="y")
+plt.legend([b1,b2], ["Données reçues", "Données envoyées"])
+plt.xticks([r + barwidth / 2 for r in x1], ['Audio', 'Video', 'Screen', 'File', 'Message'])
+
 plt.xlabel("Type de communication")
-plt.ylabel("Volume de donnée (Bytes/min)")
-
-plt.savefig("Graphes_data_received.png")
-
-""" plt.subplots_adjust(hspace=0.5) """
+plt.ylabel("Volume de donnée (Ko/min)")
+plt.savefig("Graphes_data.png")
 
 plt.show()
